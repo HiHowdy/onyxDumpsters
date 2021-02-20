@@ -14,33 +14,40 @@ end)
 
 Citizen.CreateThread(function()
     while true do
-        Citizen.Wait(0)
+        Citizen.Wait(1000)
         if canSearch then
-            local ped = GetPlayerPed(-1)
+            local ped = PlayerPedId()
             local pos = GetEntityCoords(ped)
             local dumpsterFound = false
 
             for i = 1, #dumpsters do
-                local dumpster = GetClosestObjectOfType(pos.x, pos.y, pos.z, 1.0, dumpsters[i], false, false, false)
+                local dumpster = GetClosestObjectOfType(pos, 1.0, dumpsters[i], false, false, false)
                 local dumpPos = GetEntityCoords(dumpster)
-                local dist = GetDistanceBetweenCoords(pos.x, pos.y, pos.z, dumpPos.x, dumpPos.y, dumpPos.z, true)
+                local dist = #(pos - dumpPos)
 
-                if dist < 1.8 then
+                while dist < 1.8 and canSearch and DoesEntityExist(dumpster) do
+                    Citizen.Wait(0)
+                    dumpPos = GetEntityCoords(dumpster)
+                    dist = #(GetEntityCoords(ped) - dumpPos)
                     DrawText3Ds(dumpPos.x, dumpPos.y, dumpPos.z + 1.0, 'Press [~y~H~w~] to dumpster dive')
                     if IsControlJustReleased(0, 74) then
                         for i = 1, #searched do
                             if searched[i] == dumpster then
                                 dumpsterFound = true
-                            end
-                            if i == #searched and dumpsterFound then
-                                exports['mythic_notify']:DoHudText('error', 'This dumpster has already been searched')
-                            elseif i == #searched and not dumpsterFound then
-                                exports['mythic_notify']:DoHudText('inform', 'You begin to search the dumpster')
-                                startSearching(searchTime, 'amb@prop_human_bum_bin@base', 'base', 'onyx:giveDumpsterReward')
-                                TriggerServerEvent('onyx:startDumpsterTimer', dumpster)
-                                table.insert(searched, dumpster)
-                            end
+                                break
+                            end 
                         end
+                        if dumpsterFound then
+                            exports['mythic_notify']:DoHudText('error', 'This dumpster has already been searched')
+                            break
+                        else
+                            exports['mythic_notify']:DoHudText('inform', 'You begin to search the dumpster')
+                            startSearching(searchTime, 'amb@prop_human_bum_bin@base', 'base', 'onyx:giveDumpsterReward')
+                            TriggerServerEvent('onyx:startDumpsterTimer', dumpster)
+                            table.insert(searched, dumpster)
+                            break
+                        end
+                        Citizen.Wait(1000)
                     end
                 end
             end
