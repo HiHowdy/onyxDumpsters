@@ -33,8 +33,8 @@ ESX.RegisterUsableItem('wallet', function(source) --Hammer high time to unlock b
         xPlayer.addMoney(cash)
         local cardChance = math.random(1, 40)
         if cardChance == 20 then
-            TriggerClientEvent('mythic_notify:client:SendAlert', source, { type = 'inform', text = 'You find a Green Keycard inside the wallet'})
-            xPlayer.addInventoryItem('green-keycard', 1)
+            TriggerClientEvent('mythic_notify:client:SendAlert', source, { type = 'inform', text = 'You found a Green Keycard inside the wallet'})
+            xPlayer.addInventoryItem('green_keycard', 1)
         end
     else
         TriggerClientEvent('mythic_notify:client:SendAlert', source, { type = 'inform', text = 'The wallet was empty'})
@@ -56,6 +56,7 @@ AddEventHandler('onyx:giveDumpsterReward', function()
     local gotID = {}
     local rolls = math.random(1, 2)
     local foundItem = false
+    --print( ESX.DumpTable(xPlayer) )
 
     for i = 1, rolls do
         item = dumpsterItems[math.random(1, #dumpsterItems)]
@@ -79,15 +80,20 @@ AddEventHandler('onyx:giveDumpsterReward', function()
                 end
             elseif not gotID[item.id] then
                 if item.limit > 0 then
-                    local count = xPlayer.getInventoryItem(item.id).count
-                    if count >= item.limit then
-                        TriggerClientEvent('mythic_notify:client:SendAlert', source, { type = 'inform', text = 'You find ' .. item.quantity .. 'x ' .. item.name .. ' but cannot carry any more of this item'})
-                    else
-                        gotID[item.id] = true
-                        TriggerClientEvent('mythic_notify:client:SendAlert', source, { type = 'inform', text = 'You find ' .. item.quantity .. 'x ' .. item.name})
-                        xPlayer.addInventoryItem(item.id, item.quantity)
-                        foundItem = true
+                    local playerItem = xPlayer.getInventoryItem(item.id)
+                    --print( ESX.DumpTable( playerItem ) )
+                    if playerItem ~= nil then
+                        local count = playerItem.count
+                        if count >= item.limit then
+                            TriggerClientEvent('mythic_notify:client:SendAlert', source, { type = 'inform', text = 'You find ' .. item.quantity .. 'x ' .. item.name .. ' but cannot carry any more of this item'})
+                        else
+                            gotID[item.id] = true
+                            TriggerClientEvent('mythic_notify:client:SendAlert', source, { type = 'inform', text = 'You find ' .. item.quantity .. 'x ' .. item.name})
+                            xPlayer.addInventoryItem(item.id, item.quantity)
+                            foundItem = true
+                        end
                     end
+
                 else
                     gotID[item.id] = true
                     TriggerClientEvent('mythic_notify:client:SendAlert', source, { type = 'inform', text = 'You find ' .. item.quantity .. 'x ' .. item.name})
