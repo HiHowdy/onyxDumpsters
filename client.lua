@@ -33,9 +33,9 @@ Citizen.CreateThread(function()
                                 dumpsterFound = true
                             end
                             if i == #searched and dumpsterFound then
-                                exports['mythic_notify']:DoHudText('error', 'This dumpster has already been searched')
+                                exports['mythic_notify']:SendAlert('error', 'This dumpster has already been searched')
                             elseif i == #searched and not dumpsterFound then
-                                exports['mythic_notify']:DoHudText('inform', 'You begin to search the dumpster')
+                                exports['mythic_notify']:SendAlert('inform', 'You begin to search the dumpster')
                                 startSearching(searchTime, 'amb@prop_human_bum_bin@base', 'base', 'onyx:giveDumpsterReward')
                                 TriggerServerEvent('onyx:startDumpsterTimer', dumpster)
                                 table.insert(searched, dumpster)
